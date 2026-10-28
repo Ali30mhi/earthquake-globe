@@ -1,5 +1,7 @@
 # 🌍 Live Earthquake Globe
 
+![Live Earthquake Globe](docs/screenshot.png)
+
 A real-time 3D globe of earthquakes worldwide — plus a DIY seismic sensor that streams live shaking data to it.
 All earthquake data comes from the **U.S. Geological Survey (USGS)**. English & فارسی.
 
