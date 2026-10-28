@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live Earthquake Globe</title>
+  <meta name="description" content="Real-time 3D globe of earthquakes worldwide, powered by live USGS data.">
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn/Vazirmatn-font-face.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
+</head>
+<body>
+  <div id="globe"></div>
+  <div id="loader"><div class="spinner"></div><p data-i18n="loading">Loading live USGS data…</p></div>
+
+  <aside id="panel" class="card">
+    <header class="head">
+      <h1 data-i18n="title">🌍 Live Earthquake Globe</h1>
+      <div class="headBtns">
+        <button id="langBtn" class="small-btn" title="فارسی / English">فا</button>
+        <button id="collapse" class="icon" aria-label="Collapse">–</button>
+      </div>
+    </header>
+    <div id="status" class="loading"><span class="dot"></span><span id="statusText">…</span></div>
+
+    <div class="body">
+      <div class="controls">
+        <label><span data-i18n="timeRange">Time range</span>
+          <select id="period">
+            <option value="hour" data-i18n="pHour">Past hour</option>
+            <option value="day" data-i18n="pDay" selected>Past 24 hours</option>
+            <option value="week" data-i18n="pWeek">Past 7 days</option>
+            <option value="month" data-i18n="pMonth">Past 30 days</option>
+          </select>
+        </label>
+        <label><span data-i18n="magnitude">Magnitude</span>
+          <select id="level">
+            <option value="all" data-i18n="mAll">All</option>
+            <option value="1.0">M1.0+</option>
+            <option value="2.5" selected>M2.5+</option>
+            <option value="4.5">M4.5+</option>
+            <option value="significant" data-i18n="mSig">Significant</option>
+          </select>
+        </label>
+        <label><span data-i18n="colorBy">Color by</span>
+          <select id="colorMode">
+            <option value="mag" data-i18n="cMag">Magnitude</option>
+            <option value="depth" data-i18n="cDepth">Depth</option>
+          </select>
+        </label>
+        <label><span data-i18n="mapStyle">Map style</span>
+          <select id="style">
+            <option value="realistic" data-i18n="sRealistic">Realistic 3D</option>
+            <option value="satellite" data-i18n="sSatellite">Satellite HD</option>
+            <option value="dark" data-i18n="sDark">Dark map HD</option>
+            <option value="night" data-i18n="sNight">Night lights</option>
+          </select>
+        </label>
+        <label class="wide"><span data-i18n="layer">Seismic layer</span>
+          <select id="layer">
+            <option value="recent" data-i18n="layerRecent">Hotspots · last 30 days (M2.5+)</option>
+            <option value="history" data-i18n="layerHistory">Major quakes since 1900 (M7+)</option>
+            <option value="off" data-i18n="layerOff">Off</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="stats">
+        <div><b id="statCount">–</b><span data-i18n="stCount">earthquakes</span></div>
+        <div><b id="statMax">–</b><span data-i18n="stMax">strongest</span></div>
+        <div><b id="statHour">–</b><span data-i18n="stHour">last hour</span></div>
+        <div><b id="statNear">–</b><span data-i18n="stNear">near you</span></div>
+      </div>
+
+      <div class="chartWrap">
+        <canvas id="chart" data-i18n-title="chartTitle"></canvas>
+        <div class="chartAxis"><span id="chartFrom"></span><span data-i18n="now">now</span></div>
+      </div>
+
+      <div class="timeline">
+        <button id="play" class="btn">▶ Replay</button>
+        <input type="range" id="scrub" min="0" max="1000" value="1000" aria-label="Timeline">
+        <button id="live" class="btn live on" data-i18n="live">● LIVE</button>
+      </div>
+      <div id="replayTime" class="muted small"></div>
+
+      <div class="toggles">
+        <label><input type="checkbox" id="labels" checked><span data-i18n="tLabels">Labels for M5+</span></label>
+        <label><input type="checkbox" id="borders" checked><span data-i18n="tBorders">Country borders</span></label>
+        <label><input type="checkbox" id="clouds" checked><span data-i18n="tClouds">Clouds (Realistic 3D)</span></label>
+        <label><input type="checkbox" id="rotate" checked><span data-i18n="tRotate">Auto-rotate</span></label>
+        <label><input type="checkbox" id="follow"><span data-i18n="tFollow">Fly to new earthquakes</span></label>
+        <label><input type="checkbox" id="sound"><span data-i18n="tSound">Sound alert</span></label>
+        <label><input type="checkbox" id="desktop"><span data-i18n="tDesktop">Desktop alerts (M4.5+)</span></label>
+      </div>
+
+      <div class="btnRow">
+        <button id="nearMe" class="btn">📍 Near me</button>
+        <button id="sensorBtn" class="btn" data-i18n="sensorBtn">📡 My sensor</button>
+      </div>
+      <p id="perfHint" class="hint" hidden data-i18n="perfHint"></p>
+
+      <div id="legend" class="legend"></div>
+      <p class="credit">
+        <span data-i18n="dataFrom">Data:</span> <a href="https://earthquake.usgs.gov/earthquakes/feed/" target="_blank" rel="noopener">USGS</a> · <span data-i18n="refreshed">refreshed every minute</span><span id="mapCredit"></span><br>
+        <span data-i18n="keys"></span>
+      </p>
+    </div>
+  </aside>
+
+  <aside id="feed" class="card">
+    <div class="feedHead">
+      <h2 data-i18n="feedTitle">Earthquakes</h2>
+      <select id="sort" aria-label="Sort">
+        <option value="time" data-i18n="sortNew">Newest</option>
+        <option value="mag" data-i18n="sortMag">Strongest</option>
+        <option value="dist" data-i18n="sortDist">Nearest</option>
+      </select>
+    </div>
+    <input id="search" type="search" data-i18n-ph="searchPh">
+    <ul id="feedList" aria-live="polite"></ul>
+  </aside>
+
+  <aside id="details" class="card" hidden></aside>
+
+  <section id="sensor" class="card" hidden>
+    <button id="sensorClose" class="close" aria-label="Close">×</button>
+    <h2 data-i18n="sensorTitle">📡 My seismic sensor</h2>
+    <div class="sensorRow">
+      <input id="sensorHost" type="text" spellcheck="false" aria-label="Sensor address">
+      <button id="sensorConnect" class="btn">Connect</button>
+    </div>
+    <div id="sensorStatus" class="muted small"></div>
+    <canvas id="seismo"></canvas>
+    <div class="stats three">
+      <div><b id="sLevel">–</b><span data-i18n="sLevel">motion (mg)</span></div>
+      <div><b id="sRatio">–</b><span>STA/LTA</span></div>
+      <div><b id="sPga">–</b><span data-i18n="sPga">peak (mg)</span></div>
+    </div>
+    <div class="sensorRow">
+      <button id="sensorTest" class="btn" data-i18n="testAlarm">🔔 Test alarm</button>
+      <span id="sMmi" class="muted small"></span>
+    </div>
+    <ul id="sensorEvents" class="events"></ul>
+    <p class="muted small" data-i18n="sensorNote"></p>
+  </section>
+
+  <div id="toasts"></div>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script src="sensor.js"></script>
+</body>
+</html>
