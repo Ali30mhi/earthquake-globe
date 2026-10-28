@@ -1,5 +1,10 @@
 # 🌍 Live Earthquake Globe
 
+[![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ali30mhi.github.io/earthquake-globe/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Data: USGS](https://img.shields.io/badge/data-USGS-orange)](https://earthquake.usgs.gov/)
+![No build step](https://img.shields.io/badge/build-none-lightgrey)
+
 ![Live Earthquake Globe](docs/screenshot.png)
 
 A real-time 3D globe of earthquakes worldwide — plus a DIY seismic sensor that streams live shaking data to it.
@@ -91,10 +96,26 @@ The sensor panel only works on a local (http) copy, because browsers block `ws:/
 - Satellite imagery © Esri, Maxar, Earthstar Geographics · Dark map © OpenStreetMap contributors © CARTO
 - Country borders: Natural Earth · Persian font: Vazirmatn
 
+## Roadmap
+
+- [x] Live USGS data, timeline replay, alerts
+- [x] Major earthquakes since 1900, intensity estimate at your location
+- [x] English / فارسی, installable offline PWA
+- [x] DIY ESP32 sensor with live seismogram
+- [ ] Optional second data source for small regional quakes (e.g. IRSC for Iran)
+- [ ] Combine several sensors into a small network to reduce false alarms
+- [ ] Low-noise ADXL355 sensor version
+
 ## Disclaimer
 
 A visualization and learning project — **not an official warning system**. Estimated intensities are rough.
 For official alerts, follow your national seismological agency.
+
+## فارسی
+
+یک کره‌ی سه‌بعدی که زلزله‌های سراسر جهان را به‌صورت زنده و با داده‌های رسمی سازمان زمین‌شناسی آمریکا (USGS) نشان می‌دهد: نمایش زنده و بازپخش زمانی، زلزله‌های بزرگ از سال ۱۹۰۰، تخمین شدت لرزش در محل شما، رابط کاربری کامل فارسی، کار در حالت آفلاین، و یک حسگر لرزه‌ی ساده با ESP32 که داده‌ی زنده را روی سایت نمایش می‌دهد.
+
+**نسخه‌ی زنده:** https://ali30mhi.github.io/earthquake-globe/
 
 ## License
 
