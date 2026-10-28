@@ -20,6 +20,55 @@ All earthquake data comes from the **U.S. Geological Survey (USGS)**. English & 
 - **DIY sensor** – ESP32 + MPU6050 detects local shaking, sounds a buzzer and streams a live seismogram ([sensor/README.md](sensor/README.md))
 - No build step, no backend, no API key
 
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Sources["Data sources"]
+    RT["USGS real-time feeds<br/>updated every minute"]
+    FDSN["USGS FDSN event API<br/>M7+ since 1900"]
+    TILES["Map tiles<br/>Esri · CARTO"]
+  end
+  subgraph Browser["Browser (static site)"]
+    SW["sw.js<br/>offline cache"]
+    APP["app.js<br/>data · layers · replay · alerts"]
+    I18N["i18n.js<br/>English / فارسی"]
+    SENS["sensor.js<br/>live seismogram · alarm"]
+    GLOBE["globe.gl + three.js<br/>3D rendering"]
+  end
+  ESP["ESP32 + MPU6050<br/>quake sensor"]
+  RT -->|GeoJSON| SW
+  FDSN -->|GeoJSON| SW
+  TILES --> SW
+  SW --> APP
+  I18N --> APP
+  APP --> GLOBE
+  ESP -->|"WebSocket :81 · 10 msg/s"| SENS
+  SENS --> APP
+```
+
+### Sensor detection pipeline
+
+```mermaid
+flowchart LR
+  A["MPU6050<br/>100 samples/s"] --> B["High-pass filter<br/>~0.5 Hz, removes gravity"]
+  B --> C["Vector magnitude<br/>milli-g"]
+  C --> D["STA 0.5 s / LTA 30 s"]
+  D -->|"ratio > 4 for 0.3 s"| E["Alarm: buzzer + LED"]
+  D --> F["WebSocket stream<br/>to the globe"]
+  E --> F
+```
+
+| File | Role |
+| --- | --- |
+| `index.html` | Layout and controls |
+| `style.css` | UI styling, right-to-left support |
+| `i18n.js` | Translations, localized numbers and dates |
+| `app.js` | Fetches USGS data, globe layers, replay, alerts, intensity estimate |
+| `sensor.js` | WebSocket client for the ESP32 sensor |
+| `sw.js` | Service worker: network-first for data, cache-first for map tiles |
+| `sensor/quake_sensor/` | ESP32 firmware (STA/LTA trigger) |
+
 ## Run locally
 
 ```bash
