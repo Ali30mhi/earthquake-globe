@@ -1,5 +1,7 @@
 # 🌍 Live Earthquake Globe
 
+![Earthquake Globe demo](demo.gif)
+
 [![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ali30mhi.github.io/earthquake-globe/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Data: USGS](https://img.shields.io/badge/data-USGS-orange)](https://earthquake.usgs.gov/)
